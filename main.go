@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	"31g.co.uk/triaging/config"
 	"31g.co.uk/triaging/controllers"
 	"31g.co.uk/triaging/db"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	config.LoadEnvVariables()
+	//config.LoadEnvVariables()
 
 	db.LoadDataJson()
 

@@ -17,7 +17,7 @@ COPY . .
 RUN go build -o triaging-sample-app .
 
 # Expose the port on which the application will run
-EXPOSE 3000
+EXPOSE 3001
 
 # Define the command to run the application
 CMD ["./triaging-sample-app"]
