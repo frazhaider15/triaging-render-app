@@ -151,7 +151,7 @@ func PreviousForm(c *gin.Context) {
 		themeJsonByte, _ := json.Marshal(theme.Theme)
 		themeJson = string(themeJsonByte)
 	}
-	themeJson = theme.Theme.(string)
+
 	dataDictionary := services.GetDataDictionary(key)
 	resp := gin.H{
 		"nodeId":         node.NodeId,
