@@ -58,9 +58,6 @@ func RenderWorkFlow(key, appId, flowId, currentNode string, inMemoryMap map[stri
 			return nil, err
 		}
 		builderJson = flow.BuilderJson
-		// if err = json.Unmarshal([]byte(flow.BuilderJson.(string)), &builderJson); err != nil {
-		// 	return nil, err
-		// }
 
 		currentNodeId, nodeType := GetCurrentNode(currentNode, builderJson)
 		if nodeType == "end" {
@@ -81,7 +78,6 @@ func RenderWorkFlow(key, appId, flowId, currentNode string, inMemoryMap map[stri
 			if err != nil {
 				return nil, err
 			}
-			//c.JSON(statusCode, gin.H{"data": responseData})
 			currentNode = nodeID
 		}
 		if targetNodeType == "api" {
@@ -403,16 +399,22 @@ func getFormByFormId(key, nodeID, appId, flowId string, builderJson models.Workf
 		} else {
 			return nil, err
 		}
+	} else {
+		themeJsonData, err := json.Marshal(theme.Theme)
+		if err != nil {
+			return nil, err
+		}
+		themeJson = string(themeJsonData)
 	}
-	themeJson = fmt.Sprintf("%v", theme.Theme.(map[string]interface{}))
+	formJson, _ := json.Marshal(form.BuilderJson)
 	responseData = gin.H{
 		"nodeId":         nodeID,
 		"dataDictionary": dataDictionary,
-		"form":           form.BuilderJson,
+		"form":           string(formJson),
 		"theme":          themeJson,
 	}
 
-	pushNode(key, flowId, nodeID, fmt.Sprintf("%v", form.BuilderJson.(map[string]interface{})), "form")
+	pushNode(key, flowId, nodeID, string(formJson), "form")
 	return responseData, nil
 }
 
@@ -647,10 +649,13 @@ func getFormOnCondition(key, appId, flowId, nodeID string, builderJson models.Wo
 			} else {
 				return nil, err
 			}
+		} else {
+			themeJsonByte, _ := json.Marshal(theme.Theme)
+			themeJson = string(themeJsonByte)
 		}
-		themeJson = fmt.Sprintf("%v", theme.Theme.(map[string]interface{}))
-		resp = gin.H{"dataDictionary": dataDictionary, "form": form.BuilderJson, "nodeId": targetNode, "theme": themeJson}
-		pushNode(key, flowId, targetNode, fmt.Sprintf("%v", form.BuilderJson.(map[string]interface{})), "form")
+		formJsonByte, _ := json.Marshal(form.BuilderJson)
+		resp = gin.H{"dataDictionary": dataDictionary, "form": string(formJsonByte), "nodeId": targetNode, "theme": themeJson}
+		pushNode(key, flowId, targetNode, string(formJsonByte), "form")
 		return resp, nil
 		//c.JSON(http.StatusOK, gin.H{"data": gin.H{"dataDictionary": dataDictionary, "form": form.BuilderJson, "nodeId": targetNode}})
 	}
