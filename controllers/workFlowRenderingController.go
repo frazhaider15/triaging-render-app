@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -146,6 +147,9 @@ func PreviousForm(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+	} else {
+		themeJsonByte, _ := json.Marshal(theme.Theme)
+		themeJson = string(themeJsonByte)
 	}
 	themeJson = theme.Theme.(string)
 	dataDictionary := services.GetDataDictionary(key)
