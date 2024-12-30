@@ -205,6 +205,7 @@ type AppDetails struct {
 	DataTypes  []DataTypeWithFields `json:"dataTypes"`
 	AppTokens  []AppToken           `json:"app_tokens"`
 	FlowThemes []FlowTheme          `json:"flow_themes"`
+	PageRoutes []PageRoute          `json:"page_routes"`
 }
 
 type AppToken struct {
@@ -218,6 +219,16 @@ type AppToken struct {
 	Token       string         `json:"token"`
 	Description string         `json:"description"`
 	Type        string         `json:"type"`
+}
+
+type PageRoute struct {
+	ID        uint           `json:"id"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+	Path      string         `json:"path"`
+	PageId    int            `json:"page_id"`
+	AppId     int            `json:"app_id"`
 }
 
 type AppTokenById struct {

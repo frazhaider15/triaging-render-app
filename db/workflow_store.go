@@ -104,3 +104,13 @@ func GetFormById(id float64) (models.Form, error) {
 	}
 	return models.Form{}, gorm.ErrRecordNotFound
 }
+
+func GetPageRouteByPathAndAppId(appId uint, path string) (models.PageRoute, error) {
+	aid := fmt.Sprintf("%v", appId)
+	for i, route := range JsonData[aid].Details.PageRoutes {
+		if route.Path == path {
+			return JsonData[aid].Details.PageRoutes[i], nil
+		}
+	}
+	return models.PageRoute{}, gorm.ErrRecordNotFound
+}

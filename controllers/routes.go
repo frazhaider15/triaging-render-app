@@ -28,4 +28,10 @@ func GetGinRoutes(r *gin.Engine) {
 		render.POST("previous-flow", PreviousForm)
 		render.GET("check-last-node", CheckLastNode)
 	}
+
+	page := r.Group("page")
+	{
+		page.POST("render", RenderPage)
+	}
+	
 }

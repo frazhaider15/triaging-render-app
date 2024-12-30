@@ -162,3 +162,19 @@ func PreviousForm(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"data": resp})
 }
+
+
+func RenderPage(ctx *gin.Context) {
+	path := ctx.Query("path")
+	appToken := ctx.Query("token")
+
+	var userDataDictionary map[string]interface{}
+	ctx.BindJSON(&userDataDictionary)
+
+	resp, err := services.RenderPage(path, appToken, userDataDictionary)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"data": resp})
+}
