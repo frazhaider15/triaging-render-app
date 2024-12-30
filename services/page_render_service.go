@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"31g.co.uk/triaging/db"
@@ -37,10 +38,10 @@ func RenderPage(path, token string, userDataDictionary map[string]interface{}) (
 	if err != nil {
 		return nil, err
 	}
-	
+	formJson, _ := json.Marshal(page.BuilderJson)
 	responseData := gin.H{
 		"dataDictionary": dataDictionary,
-		"form":           page.BuilderJson,
+		"form":           string(formJson),
 		//"theme":          themeJson,
 	}
 	return responseData, nil
