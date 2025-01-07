@@ -9,7 +9,7 @@ import (
 
 func GetFlowById(flowId int64, appId string) (models.Flow, error) {
 	for i, flow := range JsonData[appId].Details.Flows {
-		if flow.ID == uint(flowId) {
+		if flow.ID == uint(flowId) && !flow.DeletedAt.Valid {
 			return JsonData[appId].Details.Flows[i], nil
 		}
 	}
@@ -19,7 +19,7 @@ func GetFlowById(flowId int64, appId string) (models.Flow, error) {
 func GetAppTokenByToken(inputToken string) (models.AppToken, error) {
 	for _, app := range JsonData {
 		for i, token := range app.Details.AppTokens {
-			if token.Token == inputToken {
+			if token.Token == inputToken && !token.DeletedAt.Valid {
 				return app.Details.AppTokens[i], nil
 			}
 		}
@@ -35,7 +35,7 @@ func GetAllDataTypesByAppId(appId uint) ([]models.DataTypeWithFields, error) {
 func GetAllDataFieldsBydataTypeID(dataTypeID uint) ([]models.DataTypeField, error) {
 	for _, app := range JsonData {
 		for i, dt := range app.Details.DataTypes {
-			if dt.ID == dataTypeID {
+			if dt.ID == dataTypeID && !dt.DeletedAt.Valid {
 				return app.Details.DataTypes[i].Fields, nil
 			}
 		}
@@ -66,7 +66,7 @@ func GetThemeByAppIdAndFlowId(appId, flowId string) (models.Theme, error) {
 func GetFlowThemeByFlowId(flowId string) (models.FlowTheme, error) {
 	for _, app := range JsonData {
 		for i, ft := range app.Details.FlowThemes {
-			if ft.FlowId == flowId {
+			if ft.FlowId == flowId && !ft.DeletedAt.Valid {
 				return app.Details.FlowThemes[i], nil
 			}
 		}
@@ -76,7 +76,7 @@ func GetFlowThemeByFlowId(flowId string) (models.FlowTheme, error) {
 
 func GetDefaultTheme(appId string) (models.Theme, error) {
 	for i, theme := range JsonData[appId].Details.Themes {
-		if theme.IsDefault {
+		if theme.IsDefault && !theme.DeletedAt.Valid {
 			return JsonData[appId].Details.Themes[i], nil
 		}
 	}
@@ -86,7 +86,7 @@ func GetDefaultTheme(appId string) (models.Theme, error) {
 func GetThemeById(id string) (models.Theme, error) {
 	for _, app := range JsonData {
 		for i, theme := range app.Details.Themes {
-			if fmt.Sprintf("%v", theme.ID) == id {
+			if fmt.Sprintf("%v", theme.ID) == id && !theme.DeletedAt.Valid {
 				return app.Details.Themes[i], nil
 			}
 		}
@@ -97,7 +97,7 @@ func GetThemeById(id string) (models.Theme, error) {
 func GetFormById(id float64) (models.Form, error) {
 	for _, app := range JsonData {
 		for i, form := range app.Details.Forms {
-			if float64(form.ID) == id {
+			if float64(form.ID) == id && !form.DeletedAt.Valid {
 				return app.Details.Forms[i], nil
 			}
 		}
@@ -108,7 +108,7 @@ func GetFormById(id float64) (models.Form, error) {
 func GetPageRouteByPathAndAppId(appId uint, path string) (models.PageRoute, error) {
 	aid := fmt.Sprintf("%v", appId)
 	for i, route := range JsonData[aid].Details.PageRoutes {
-		if route.Path == path {
+		if route.Path == path && !route.DeletedAt.Valid {
 			return JsonData[aid].Details.PageRoutes[i], nil
 		}
 	}
