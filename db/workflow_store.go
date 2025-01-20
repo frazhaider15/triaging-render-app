@@ -24,6 +24,7 @@ func GetAppTokenByToken(inputToken string) (models.AppToken, error) {
 			}
 		}
 	}
+	fmt.Println("could not find token : ", inputToken)
 	return models.AppToken{}, gorm.ErrRecordNotFound
 }
 
@@ -102,6 +103,7 @@ func GetFormById(id float64) (models.Form, error) {
 			}
 		}
 	}
+	fmt.Println("could not find form : id", id)
 	return models.Form{}, gorm.ErrRecordNotFound
 }
 
@@ -112,5 +114,6 @@ func GetPageRouteByPathAndAppId(appId uint, path string) (models.PageRoute, erro
 			return JsonData[aid].Details.PageRoutes[i], nil
 		}
 	}
+	fmt.Println("could not find route : appID", appId, " path ", path)	
 	return models.PageRoute{}, gorm.ErrRecordNotFound
 }
