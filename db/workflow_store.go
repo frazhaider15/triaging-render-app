@@ -108,12 +108,15 @@ func GetFormById(id float64) (models.Form, error) {
 }
 
 func GetPageRouteByPathAndAppId(appId uint, path string) (models.PageRoute, error) {
-	aid := fmt.Sprintf("%v", appId)
-	for i, route := range JsonData[aid].Details.PageRoutes {
-		if route.Path == path && !route.DeletedAt.Valid {
-			return JsonData[aid].Details.PageRoutes[i], nil
+	//aid := fmt.Sprintf("%v", appId)
+	for _, app := range JsonData {
+		for _, route := range app.Details.PageRoutes {
+			if route.Path == path && !route.DeletedAt.Valid {
+				return route, nil
+			}
 		}
 	}
-	fmt.Println("could not find route : appID", appId, " path ", path)	
+
+	fmt.Println("could not find route : appID", appId, " path ", path)
 	return models.PageRoute{}, gorm.ErrRecordNotFound
 }
