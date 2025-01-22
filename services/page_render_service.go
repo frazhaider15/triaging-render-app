@@ -7,6 +7,7 @@ import (
 	"31g.co.uk/triaging/db"
 	"31g.co.uk/triaging/util"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func RenderPage(path, token string, userDataDictionary map[string]interface{}) (map[string]interface{}, error) {
@@ -39,10 +40,23 @@ func RenderPage(path, token string, userDataDictionary map[string]interface{}) (
 		return nil, err
 	}
 	formJson, _ := json.Marshal(page.BuilderJson)
+	var themeJson string
+	theme, err := db.GetThemeByAppIdAndFlowId(fmt.Sprintf("%d", appToken.AppId), fmt.Sprintf("%d", route.PageId), "PAGE")
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			themeJson = ""
+		} else {
+			return nil, err
+		}
+	} else {
+		themeJsonStr, _ := json.Marshal(theme.Theme)
+		themeJson = string(themeJsonStr)
+	}
+
 	responseData := gin.H{
 		"dataDictionary": dataDictionary,
 		"form":           string(formJson),
-		//"theme":          themeJson,
+		"theme":          string(themeJson),
 	}
 	return responseData, nil
 }

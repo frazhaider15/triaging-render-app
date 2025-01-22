@@ -148,12 +148,13 @@ type Theme struct {
 }
 
 type FlowTheme struct {
-	ID        uint           `json:"id"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at"`
-	FlowId    string         `json:"flow_id"`
-	ThemeId   string         `json:"theme_id"`
+	ID         uint           `json:"id"`
+	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  time.Time      `json:"updated_at"`
+	DeletedAt  gorm.DeletedAt `json:"deleted_at"`
+	FlowId     string         `json:"flow_id"`
+	ThemeId    string         `json:"theme_id"`
+	EntityType string         `json:"entity_type"`
 }
 
 type DataType struct {

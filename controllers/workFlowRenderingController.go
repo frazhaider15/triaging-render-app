@@ -139,7 +139,7 @@ func PreviousForm(c *gin.Context) {
 	}
 
 	var themeJson string
-	theme, err := db.GetThemeByAppIdAndFlowId(appId, node.FlowId)
+	theme, err := db.GetThemeByAppIdAndFlowId(appId, node.FlowId, "FLOW")
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			themeJson = ""
@@ -162,7 +162,6 @@ func PreviousForm(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"data": resp})
 }
-
 
 func RenderPage(ctx *gin.Context) {
 	path := ctx.Query("path")

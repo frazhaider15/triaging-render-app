@@ -404,7 +404,7 @@ func getFormByFormId(key, nodeID, appId, flowId string, builderJson models.Workf
 	}
 
 	var themeJson string
-	theme, err := db.GetThemeByAppIdAndFlowId(appId, flowId)
+	theme, err := db.GetThemeByAppIdAndFlowId(appId, flowId, "FLOW")
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			themeJson = ""
@@ -659,7 +659,7 @@ func getFormOnCondition(key, appId, flowId, nodeID string, builderJson models.Wo
 		}
 
 		var themeJson string
-		theme, err := db.GetThemeByAppIdAndFlowId(appId, flowId)
+		theme, err := db.GetThemeByAppIdAndFlowId(appId, flowId, "FLOW")
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
 				themeJson = ""

@@ -44,9 +44,9 @@ func GetAllDataFieldsBydataTypeID(dataTypeID uint) ([]models.DataTypeField, erro
 	return nil, gorm.ErrRecordNotFound
 }
 
-func GetThemeByAppIdAndFlowId(appId, flowId string) (models.Theme, error) {
+func GetThemeByAppIdAndFlowId(appId, flowId, entityType string) (models.Theme, error) {
 	var theme models.Theme
-	flowTheme, err := GetFlowThemeByFlowId(flowId)
+	flowTheme, err := GetFlowThemeByFlowId(flowId, entityType)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			theme, err = GetDefaultTheme(appId)
@@ -64,10 +64,10 @@ func GetThemeByAppIdAndFlowId(appId, flowId string) (models.Theme, error) {
 	return theme, nil
 }
 
-func GetFlowThemeByFlowId(flowId string) (models.FlowTheme, error) {
+func GetFlowThemeByFlowId(flowId, entityType string) (models.FlowTheme, error) {
 	for _, app := range JsonData {
 		for i, ft := range app.Details.FlowThemes {
-			if ft.FlowId == flowId && !ft.DeletedAt.Valid {
+			if ft.FlowId == flowId && !ft.DeletedAt.Valid && ft.EntityType == entityType {
 				return app.Details.FlowThemes[i], nil
 			}
 		}
