@@ -62,7 +62,13 @@ func RenderWorkFlow(key, appId, flowId, currentNode string, inMemoryMap map[stri
 		currentNodeId, nodeType := GetCurrentNode(currentNode, builderJson)
 		if nodeType == "end" {
 			ClearDataDictionary(key)
-			resp["end"] = "no new node ahead"
+			nodeData, ok := builderJson.FlowWorkspace.NodesData[currentNodeId]
+			if !ok {
+				resp["type"] = "end"
+				return resp, nil
+			}
+			resp = nodeData.(map[string]interface{})
+			resp["type"] = "end"
 			return resp, nil
 		}
 
@@ -109,7 +115,13 @@ func RenderWorkFlow(key, appId, flowId, currentNode string, inMemoryMap map[stri
 		if targetNodeType == "end" {
 			if getFlowLevel(key) == 0 {
 				pushNode(key, flowId, nodeID, "", targetNodeType)
-				resp["end"] = "no new node ahead"
+				nodeData, ok := builderJson.FlowWorkspace.NodesData[nodeID]
+				if !ok {
+					resp["type"] = "end"
+					return resp, nil
+				}
+				resp = nodeData.(map[string]interface{})
+				resp["type"] = "end"
 				break
 			}
 			// going back from subflow to main flow
@@ -628,8 +640,13 @@ func getFormOnCondition(key, appId, flowId, nodeID string, builderJson models.Wo
 	_, nodeType := GetCurrentNode(targetNode, builderJson)
 	if nodeType == "end" {
 		ClearDataDictionary(key)
-		resp = gin.H{"end": "no new node ahead"}
-		//c.JSON(http.StatusOK, gin.H{"end": "no new node ahead"})
+		nodeData, ok := builderJson.FlowWorkspace.NodesData[targetNode]
+		if !ok {
+			resp = gin.H{"type": "end"}
+			return resp, nil
+		}
+		resp = nodeData.(map[string]interface{})
+		resp["type"] = "end"
 		return resp, nil
 	}
 	if nodeType == "form" {
