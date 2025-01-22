@@ -469,17 +469,24 @@ func handleApiNode(key, flowId, nodeID string, dataDictionary map[string]interfa
 		}
 	}
 	for _, param := range apiNodeData.API.QueryParams {
-		if stringsContainCurlyBraces(param.ValueItem) {
-			paramValue, _ := getValueFromNestedMap(dataDictionary, param.ValueItem)
-			reqUrl = reqUrl + param.KeyItem + "=" + fmt.Sprintf("%v", paramValue) + "&"
-		} else {
-			reqUrl = reqUrl + param.KeyItem + "=" + param.ValueItem + "&"
+		if param.KeyItem != "" || param.ValueItem != "" {
+			if stringsContainCurlyBraces(param.ValueItem) {
+				if param.ValueItem != "" {
+					paramValue, _ := getValueFromNestedMap(dataDictionary, param.ValueItem)
+					if paramValue != nil {
+						reqUrl = reqUrl + param.KeyItem + "=" + fmt.Sprintf("%v", paramValue) + "&"
+					}
+				}
+
+			} else {
+				reqUrl = reqUrl + param.KeyItem + "=" + param.ValueItem + "&"
+			}
 		}
 	}
 	bodyplaceHolders := getPlaceholders(apiNodeData.API.Body)
 	for _, bodyplaceHolder := range bodyplaceHolders {
 		placeHolderValue, _ := getValueFromNestedMap(dataDictionary, bodyplaceHolder)
-		value := fmt.Sprintf("%v", placeHolderValue)
+		value := fmt.Sprintf(`"%v"`, placeHolderValue)
 
 		apiNodeData.API.Body = replacePlaceholder(apiNodeData.API.Body, bodyplaceHolder, value)
 
