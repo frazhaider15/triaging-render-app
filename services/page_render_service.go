@@ -10,8 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func RenderPage(path, token string, userDataDictionary map[string]interface{}) (map[string]interface{}, error) {
-	key := token
+func RenderPage(path, token, sessionId string, userDataDictionary map[string]interface{}) (map[string]interface{}, error) {
+	key := sessionId
 	var dataDictionary map[string]interface{}
 	var err error
 

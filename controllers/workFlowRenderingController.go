@@ -17,6 +17,7 @@ func Testing(c *gin.Context) {
 }
 func WorkFlowRendering(c *gin.Context) {
 	appToken := c.Query("token")
+	sessionId := c.Query("sessionId")
 	var appId, flowId string
 
 	appIdint, flowIdint, err := services.ValidateAppToken(appToken)
@@ -46,7 +47,7 @@ func WorkFlowRendering(c *gin.Context) {
 	if currentNode == "" {
 		services.ClearDataDictionary(key)
 	}
-	resp, err := services.RenderWorkFlow(key, appId, flowId, currentNode, inMemoryMap)
+	resp, err := services.RenderWorkFlow(key, appId, flowId, currentNode, sessionId, inMemoryMap)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -88,6 +89,7 @@ func CheckLastNode(c *gin.Context) {
 func PreviousForm(c *gin.Context) {
 
 	appToken := c.Query("token")
+	sessionId := c.Query("sessionId")
 	var appId, flowId string
 	var err error
 
@@ -152,7 +154,7 @@ func PreviousForm(c *gin.Context) {
 		themeJson = string(themeJsonByte)
 	}
 
-	dataDictionary := services.GetDataDictionary(key)
+	dataDictionary := services.GetDataDictionary(sessionId)
 	resp := gin.H{
 		"nodeId":         node.NodeId,
 		"dataDictionary": dataDictionary,
@@ -166,14 +168,31 @@ func PreviousForm(c *gin.Context) {
 func RenderPage(ctx *gin.Context) {
 	path := ctx.Query("path")
 	appToken := ctx.Query("token")
+	sessionId := ctx.Query("sessionId")
 
 	var userDataDictionary map[string]interface{}
 	ctx.BindJSON(&userDataDictionary)
 
-	resp, err := services.RenderPage(path, appToken, userDataDictionary)
+	resp, err := services.RenderPage(path, appToken, sessionId, userDataDictionary)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"data": resp})
+}
+
+func UpdateDataDictionaryBySessionId(c *gin.Context) {
+	sessionId := c.Query("sessionId")
+	token := c.Query("token")
+
+	appId, _, err := services.ValidateAppToken(token)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	var dataDictionary map[string]interface{}
+	c.BindJSON(&dataDictionary)
+	services.UpdateDataDictionaryBySessionId(appId,sessionId, dataDictionary)
+	c.JSON(http.StatusOK, "Data dictionary updated successfully")
 }

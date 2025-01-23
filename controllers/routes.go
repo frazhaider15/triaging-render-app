@@ -32,6 +32,7 @@ func GetGinRoutes(r *gin.Engine) {
 	page := r.Group("page")
 	{
 		page.POST("render", RenderPage)
+		page.POST("updata-data-dictionary", UpdateDataDictionaryBySessionId)
 	}
 	
 }

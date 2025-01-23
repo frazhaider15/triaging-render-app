@@ -23,7 +23,7 @@ var dataDictionary = make(map[string]map[string]interface{})
 var FormHistoryMap = make(map[string]stack.Stack[FormHistory])
 var CurrentFlow = make(map[string]map[string]interface{})
 
-func RenderWorkFlow(key, appId, flowId, currentNode string, inMemoryMap map[string]interface{}) (map[string]interface{}, error) {
+func RenderWorkFlow(key, appId, flowId, currentNode, sessionId string, inMemoryMap map[string]interface{}) (map[string]interface{}, error) {
 	var (
 		dataDictionary map[string]interface{}
 		err            error
@@ -33,13 +33,13 @@ func RenderWorkFlow(key, appId, flowId, currentNode string, inMemoryMap map[stri
 		return nil, fmt.Errorf("app id or flowId not found")
 	}
 
-	if !CheckIfDataDictionaryInitialised(key) {
-		dataDictionary, err = CreateEmptyDataDictionary(appId, key)
+	if !CheckIfDataDictionaryInitialised(sessionId) {
+		dataDictionary, err = CreateEmptyDataDictionary(appId, sessionId)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		dataDictionary = GetDataDictionary(key)
+		dataDictionary = GetDataDictionary(sessionId)
 	}
 	updateNestedMaps(dataDictionary, inMemoryMap)
 
@@ -87,14 +87,14 @@ func RenderWorkFlow(key, appId, flowId, currentNode string, inMemoryMap map[stri
 			currentNode = nodeID
 		}
 		if targetNodeType == "api" {
-			dataDictionary, err = handleApiNode(key, flowId, nodeID, dataDictionary, builderJson)
+			dataDictionary, err = handleApiNode(key, flowId, sessionId, nodeID, dataDictionary, builderJson)
 			if err != nil {
 				return nil, err
 			}
 			currentNode = nodeID
 		}
 		if targetNodeType == "condition" {
-			resp, err = getFormOnCondition(key, appId, flowId, nodeID, builderJson, dataDictionary)
+			resp, err = getFormOnCondition(key, appId, flowId, nodeID, sessionId, builderJson, dataDictionary)
 			if err != nil {
 				return nil, err
 			}
@@ -103,7 +103,7 @@ func RenderWorkFlow(key, appId, flowId, currentNode string, inMemoryMap map[stri
 		if targetNodeType == "subFlow" {
 			IncrementFlowLevel(key)
 			AddPreviousFlow(key, flowId, nodeID)
-			resp, err = handleFlowNode(key, appId, nodeID, builderJson, dataDictionary)
+			resp, err = handleFlowNode(key, appId, nodeID, sessionId, builderJson, dataDictionary)
 			if err != nil {
 				return nil, err
 			}
@@ -430,7 +430,7 @@ func getFormByFormId(key, nodeID, appId, flowId string, builderJson models.Workf
 	return responseData, nil
 }
 
-func handleApiNode(key, flowId, nodeID string, dataDictionary map[string]interface{}, builderJson models.Workflow) (map[string]interface{}, error) {
+func handleApiNode(key, flowId, nodeID, sessionId string, dataDictionary map[string]interface{}, builderJson models.Workflow) (map[string]interface{}, error) {
 	apiNodeDataInterface := builderJson.FlowWorkspace.NodesData[nodeID]
 	if apiNodeDataInterface == nil {
 		return nil, fmt.Errorf("api node data not found")
@@ -493,7 +493,7 @@ func handleApiNode(key, flowId, nodeID string, dataDictionary map[string]interfa
 	}
 	res, code, err := util.MakeHttpRequestWithRawJsonBody(apiNodeData.API.ReqMethod, reqUrl, apiNodeData.API.Body, headers)
 	if err != nil {
-		dd := AddErrorInDataDictionary(err.Error(), fmt.Sprintf("%v", code), key)
+		dd := AddErrorInDataDictionary(err.Error(), fmt.Sprintf("%v", code), sessionId)
 		return dd, nil
 	}
 
@@ -506,19 +506,19 @@ func handleApiNode(key, flowId, nodeID string, dataDictionary map[string]interfa
 		return nil, err
 	}
 	mapType := strings.Trim(apiNodeData.API.MapType, "{}")
-	dd := UpdateDataDictionaryAfterApiCall(resultMap, key, mapType)
+	dd := UpdateDataDictionaryAfterApiCall(resultMap, sessionId, mapType)
 	pushNode(key, flowId, nodeID, "", "api")
 	return dd, nil
 }
 
-func handleFlowNode(key, appId, nodeID string, builderJson models.Workflow, dataDictionary map[string]interface{}) (map[string]interface{}, error) {
+func handleFlowNode(key, appId, nodeID, sessionId string, builderJson models.Workflow, dataDictionary map[string]interface{}) (map[string]interface{}, error) {
 	nodeData := builderJson.FlowWorkspace.NodesData[nodeID]
 
 	formIdStruct := nodeData.(map[string]interface{})
 
 	flowId := formIdStruct["flowId"].(float64)
 	CurrentFlow[key]["flowId"] = fmt.Sprintf("%v", flowId)
-	resp, err := RenderWorkFlow(key, appId, fmt.Sprintf("%v", flowId), "", dataDictionary)
+	resp, err := RenderWorkFlow(key, appId, fmt.Sprintf("%v", flowId), "", sessionId, dataDictionary)
 	if err != nil {
 		return nil, err
 	}
@@ -612,7 +612,7 @@ func resolveCondition(nodeID string, dataDictionary map[string]interface{}, buil
 	return conditionName, nodeID, nil
 }
 
-func getFormOnCondition(key, appId, flowId, nodeID string, builderJson models.Workflow, dataDictionary map[string]interface{}) (map[string]interface{}, error) {
+func getFormOnCondition(key, appId, flowId, nodeID, sessionId string, builderJson models.Workflow, dataDictionary map[string]interface{}) (map[string]interface{}, error) {
 	var currentEdge, targetNode string
 	var err error
 	var resp map[string]interface{}
@@ -684,13 +684,13 @@ func getFormOnCondition(key, appId, flowId, nodeID string, builderJson models.Wo
 		//c.JSON(http.StatusOK, gin.H{"data": gin.H{"dataDictionary": dataDictionary, "form": form.BuilderJson, "nodeId": targetNode}})
 	}
 	if nodeType == "api" {
-		dataDictionary, err = handleApiNode(key, flowId, targetNode, dataDictionary, builderJson)
+		dataDictionary, err = handleApiNode(key, flowId, targetNode, sessionId, dataDictionary, builderJson)
 		if err != nil {
 			return nil, err
 		}
 	}
 	if nodeType == "condition" {
-		resp, err = getFormOnCondition(key, appId, flowId, nodeID, builderJson, dataDictionary)
+		resp, err = getFormOnCondition(key, appId, flowId, nodeID, sessionId, builderJson, dataDictionary)
 		if err != nil {
 			return nil, err
 		}
@@ -699,12 +699,28 @@ func getFormOnCondition(key, appId, flowId, nodeID string, builderJson models.Wo
 	if nodeType == "subFlow" {
 		IncrementFlowLevel(key)
 		AddPreviousFlow(key, flowId, targetNode)
-		resp, err = handleFlowNode(key, appId, targetNode, builderJson, dataDictionary)
+		resp, err = handleFlowNode(key, appId, targetNode, sessionId, builderJson, dataDictionary)
 		if err != nil {
 			return nil, err
 		}
 	}
 	return resp, nil
+}
+
+func UpdateDataDictionaryBySessionId(appId uint, sessionId string, dd map[string]interface{}) error {
+	alreadyDD, ok := dataDictionary[sessionId]
+	if !ok {
+		emptyDD, err := CreateEmptyDataDictionary(fmt.Sprintf("%v", appId), sessionId)
+		if err != nil {
+			return err
+		}
+		updateNestedMaps(emptyDD, dd)
+		dataDictionary[sessionId] = emptyDD
+	} else {
+		updateNestedMaps(alreadyDD, dd)
+		dataDictionary[sessionId] = alreadyDD
+	}
+	return nil
 }
 
 func compareBool(operandA, operandB bool, operator string) bool {
