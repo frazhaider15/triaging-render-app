@@ -193,6 +193,39 @@ func UpdateDataDictionaryBySessionId(c *gin.Context) {
 
 	var dataDictionary map[string]interface{}
 	c.BindJSON(&dataDictionary)
-	services.UpdateDataDictionaryBySessionId(appId,sessionId, dataDictionary)
+	services.UpdateDataDictionaryBySessionId(appId, sessionId, dataDictionary)
 	c.JSON(http.StatusOK, "Data dictionary updated successfully")
+}
+
+type AddAppTokenRequest struct {
+	AppId       uint   `json:"appId" binding:"required"`
+	FlowId      uint   `json:"flowId"`
+	Description string `json:"description"`
+	Scope       string `json:"scope"`
+}
+
+func CreateTemporaryAppToken(c *gin.Context) {
+	var body AddAppTokenRequest
+	// uid := getCurrentUid(c)
+	// if uid == "" {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "uid not found"})
+	// 	return
+	// }
+	err := c.ShouldBindJSON(&body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body: " + err.Error(),
+		})
+		return
+	}
+	token, err := services.CreateAppToken("", body.Description, "TEMPORARY", body.Scope, body.AppId, body.FlowId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Respond
+	c.JSON(http.StatusOK, gin.H{"data": gin.H{"token": token}, "message": "token created successfully"})
 }

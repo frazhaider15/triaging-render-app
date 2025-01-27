@@ -21,6 +21,11 @@ func GetGinRoutes(r *gin.Engine) {
 	// For testing purpose
 	r.GET("", Testing)
 
+	app := r.Group("app")
+	{
+		app.POST("create-temporary-token", CreateTemporaryAppToken)
+	}
+
 	// User information
 	render := r.Group("render")
 	{
@@ -34,5 +39,4 @@ func GetGinRoutes(r *gin.Engine) {
 		page.POST("render", RenderPage)
 		page.POST("updata-data-dictionary", UpdateDataDictionaryBySessionId)
 	}
-	
 }

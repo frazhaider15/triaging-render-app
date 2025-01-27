@@ -5,8 +5,10 @@ import (
 	"fmt"
 
 	"31g.co.uk/triaging/db"
+	"31g.co.uk/triaging/models"
 	"31g.co.uk/triaging/util"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/xid"
 	"gorm.io/gorm"
 )
 
@@ -59,4 +61,19 @@ func RenderPage(path, token, sessionId string, userDataDictionary map[string]int
 		"theme":          string(themeJson),
 	}
 	return responseData, nil
+}
+
+func CreateAppToken(userId, description, tokenType, scope string, appId, flowId uint) (string, error) {
+	token := xid.New().String()
+
+	db.CreateAppToken(&models.AppToken{
+		UserId:      userId,
+		FlowId:      flowId,
+		AppId:       appId,
+		Token:       util.EncodeStringToBase64(token),
+		Description: description,
+		Type:        tokenType,
+		Scope:       scope,
+	})
+	return token, nil
 }

@@ -6,6 +6,7 @@ require (
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/joho/godotenv v1.5.1
+	github.com/rs/xid v1.6.0
 	github.com/spf13/cast v1.7.0
 	gonih.org v0.0.0-20230802184447-5ac3f742ddac
 	gorm.io/gorm v1.25.12

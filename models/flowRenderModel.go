@@ -219,6 +219,7 @@ type AppToken struct {
 	AppId       uint           `json:"app_id"`
 	Token       string         `json:"token"`
 	Description string         `json:"description"`
+	Scope       string         `json:"scope"`
 	Type        string         `json:"type"`
 }
 

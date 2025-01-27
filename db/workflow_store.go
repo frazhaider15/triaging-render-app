@@ -127,3 +127,10 @@ func GetPageRouteByPathAndAppId(appId uint, path string) (models.PageRoute, erro
 	fmt.Println("could not find route : appID", appId, " path ", path)
 	return models.PageRoute{}, gorm.ErrRecordNotFound
 }
+
+func CreateAppToken(token *models.AppToken) {
+	for i, app := range JsonData {
+		app.Details.AppTokens = append(app.Details.AppTokens, *token)
+		JsonData[i] = app
+	}
+}
