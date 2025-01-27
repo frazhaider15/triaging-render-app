@@ -29,7 +29,14 @@ func GetAppTokenByToken(inputToken string) (models.AppToken, error) {
 }
 
 func GetAllDataTypesByAppId(appId uint) ([]models.DataTypeWithFields, error) {
-	dataTypes := JsonData[fmt.Sprintf("%v", appId)].Details.DataTypes
+	dataTypes := make([]models.DataTypeWithFields, 0)
+	for _, app := range JsonData {
+		for _, dt := range app.Details.DataTypes {
+			if dt.AppId == appId && !dt.DeletedAt.Valid {
+				dataTypes = append(dataTypes, dt)
+			}
+		}
+	}
 	return dataTypes, nil
 }
 
